@@ -84,3 +84,57 @@ func unstructured() (output map[string]interface{}) {
 	}
 	return
 }
+
+func unmarshalStructArray() (people []Person) {
+	file, err := os.Open("people.json")
+	if err != nil {
+		log.Println("Error opening json file:", err)
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Error reading json data:", err)
+	}
+
+	err = json.Unmarshal(data, &people)
+	if err != nil {
+		log.Println("Error unmarshalling json data:", err)
+	}
+	return
+}
+
+func decode(p chan Person) {
+	file, err := os.Open("people_stream.json")
+	if err != nil {
+		log.Println("Error opening json file:", err)
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	for {
+		var person Person
+		err = decoder.Decode(&person)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Println("Error decoding json data:", err)
+			break
+		}
+		p <- person
+	}
+	close(p)
+}
+
+func marshal() {
+	person := unmarshal()
+	data, err := json.Marshal(&person)
+	if err != nil {
+		log.Println("Cannot marshal person:", err)
+	}
+	err = os.WriteFile("skywalker_marshalled.json", data, 0644)
+	if err != nil {
+		log.Println("Cannot write to file", err)
+	}
+}
