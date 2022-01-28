@@ -66,10 +66,9 @@ func TestOutputFunc(t *testing.T) {
 }
 
 func TestSyslog(t *testing.T) {
-
-	logger, err := syslog.NewLogger(syslog.LOG_NOTICE, log.LstdFlags)
+	logger, err := syslog.NewLogger(syslog.LOG_ERR|syslog.LOG_USER, 0)
 	if err != nil {
-		t.Error("error:", err)
+		t.Error("cannot write to syslog:", err)
 	}
-	logger.Print("Hello Logs!")
+	logger.Print("hello syslog!")
 }
